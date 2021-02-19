@@ -143,11 +143,12 @@ int CalcFileCRC(char *path)
             }
         } while(len > 0);
 
-    fclose(f);
-    return (int)~crc;
+        fclose(f);
+        return (int)~crc;
     }
     else
     {
-        printf("Can't open file %s\n", path);
+        printf("Can't find or open file %s\n", path);
+        return 0;
     }
 }

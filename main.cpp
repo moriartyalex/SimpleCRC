@@ -28,7 +28,7 @@ int main()
     std::cout << buf << std::endl;
 
     // CRC32 for file
-    char *filename;
+    char *filename = {};
     std::cout << "Input filename: ";
     std::cin >> filename;
 
