@@ -1,6 +1,7 @@
+#include <stdio.h>
 #include "CRC16_32.h"
 
-const unsigned short CRC16Tab [256]=
+const unsigned short CRC16Tab[256]=
   {0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7,
    0x8108, 0x9129, 0xa14a, 0xb16b, 0xc18c, 0xd1ad, 0xe1ce, 0xf1ef,
    0x1231, 0x0210, 0x3273, 0x2252, 0x52b5, 0x4294, 0x72f7, 0x62d6,
@@ -114,4 +115,39 @@ unsigned long CalcCRC32(unsigned long StartCRC, unsigned char *Addr, unsigned lo
     for (i=0; i<Size; ++i)
         StartCRC = CRC32Tab[(unsigned char)StartCRC ^ Addr[i]] ^ StartCRC>>8;
     return(StartCRC);
+}
+
+unsigned update_crc32(unsigned long crc, const unsigned char *data, size_t len)
+{
+    while(len--)
+    {
+        crc = CRC32Tab[(crc ^ *data++) &0xff] ^ (crc >> 8);
+    }
+    return crc;
+}
+
+int CalcFileCRC(char *path)
+{
+    FILE *f = fopen(path, "rb");
+    if(f)
+    {
+        unsigned crc = 0xffffffff;
+        int len = 0;
+        do
+        {
+            unsigned char chunk[128];
+            len = fread(chunk, 1, sizeof(chunk), f);
+            if(len > 0)
+            {
+                crc = update_crc32(crc, chunk, len);
+            }
+        } while(len > 0);
+
+    fclose(f);
+    return (int)~crc;
+    }
+    else
+    {
+        printf("Can't open file %s\n", path);
+    }
 }
